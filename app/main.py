@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Request, Form
 from fastapi.responses import JSONResponse
-from slack_security import verify_slack_request
-from snowflake_client import onboard_user, reset_password
+from app.slack_security import verify_slack_request
+from app.snowflake_client import onboard_user, reset_password
 import requests
 
 app = FastAPI()
