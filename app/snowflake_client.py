@@ -42,7 +42,7 @@ def onboard_user(username, role):
         conn.close()
 
 
-def generate_password(length=12):
+def generate_password(length=15):
     """
     Generates a strong password containing:
     - Uppercase letters
@@ -70,7 +70,7 @@ def generate_password(length=12):
     # Fill remaining characters
     all_chars = uppercase + lowercase + digits + special
 
-    for _ in range(length - 4):
+    for _ in range(length):
         password.append(secrets.choice(all_chars))
 
     # Shuffle to avoid predictable pattern
