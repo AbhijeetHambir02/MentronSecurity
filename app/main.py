@@ -4,12 +4,15 @@ from app.slack_security import verify_slack_request
 from app.snowflake_client import onboard_user, reset_password
 import requests
 from urllib.parse import parse_qs
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+auth_user = os.getenv("AUTH_USER")
 
 app = FastAPI()
 
-AUTHORIZED_USERS = [
-    "U0ACJ36FF8W"
-]
 
 def process_command(text, response_url):
     args = text.split()
@@ -93,7 +96,7 @@ async def slack_command(request: Request, background_tasks: BackgroundTasks):
     response_url = form_data.get("response_url", [""])[0]
 
     # Authorization
-    if user_id not in AUTHORIZED_USERS:
+    if user_id not in auth_user:
         return {
             "response_type": "ephemeral",
             "text": "You are not authorized"
