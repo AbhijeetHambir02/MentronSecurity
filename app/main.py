@@ -48,16 +48,15 @@ def process_command(text, response_url):
     # -------- RESET PASSWORD ----------
     elif action == "reset_password":
 
-        if len(args) != 3:
+        if len(args) != 2:
             requests.post(response_url, json={
                 "text": "Usage: /snowflake reset_password <username> <password>"
             })
             return
 
         username = args[1]
-        password = args[2]
 
-        success, result = reset_password(username, password)
+        success, result = reset_password(username)
 
         if success:
             message = f"""

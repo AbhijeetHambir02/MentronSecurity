@@ -1,6 +1,8 @@
 import snowflake.connector
 import os
 from dotenv import load_dotenv
+import secrets
+import string
 
 load_dotenv()
 
@@ -40,10 +42,48 @@ def onboard_user(username, role):
         conn.close()
 
 
-def reset_password(username, password):
+def generate_password(length=12):
+    """
+    Generates a strong password containing:
+    - Uppercase letters
+    - Lowercase letters
+    - Numbers
+    - Special characters
+    """
+
+    if length < 8:
+        raise ValueError("Password length must be at least 8 characters")
+
+    uppercase = string.ascii_uppercase
+    lowercase = string.ascii_lowercase
+    digits = string.digits
+    special = "!@#$%^&*()-_=+[]{}|;:,.<>?/"
+
+    # Ensure minimum one character from each category
+    password = [
+        secrets.choice(uppercase),
+        secrets.choice(lowercase),
+        secrets.choice(digits),
+        secrets.choice(special)
+    ]
+
+    # Fill remaining characters
+    all_chars = uppercase + lowercase + digits + special
+
+    for _ in range(length - 4):
+        password.append(secrets.choice(all_chars))
+
+    # Shuffle to avoid predictable pattern
+    secrets.SystemRandom().shuffle(password)
+
+    return "".join(password)
+
+
+def reset_password(username):
     conn = get_connection()
     cursor = conn.cursor()
 
+    password = generate_password()
     try:
         cursor.execute(
             f"ALTER USER {username} SET PASSWORD='{password}' MUST_CHANGE_PASSWORD=TRUE"
