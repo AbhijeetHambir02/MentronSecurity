@@ -40,18 +40,18 @@ def onboard_user(username, role):
         conn.close()
 
 
-def reset_password(username):
+def reset_password(username, password):
     conn = get_connection()
     cursor = conn.cursor()
 
-    temp_password = "Reset@" + username + "123"
+    # temp_password = "Reset@" + username + "123"
 
     try:
         cursor.execute(
-            f"ALTER USER {username} SET PASSWORD='{temp_password}' MUST_CHANGE_PASSWORD=TRUE"
+            f"ALTER USER {username} SET PASSWORD='{password}' MUST_CHANGE_PASSWORD=TRUE"
         )
 
-        return True, temp_password
+        return True, password
 
     except Exception as e:
         return False, str(e)

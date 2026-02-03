@@ -124,22 +124,23 @@ Temporary Password: `{result}`
     # -------- RESET PASSWORD ----------
     elif action == "reset_password":
 
-        if len(args) != 2:
+        if len(args) != 3:
             requests.post(response_url, json={
                 "text": "Usage: /snowflake reset_password <username>"
             })
             return
 
         username = args[1]
+        password = args[2]
 
-        success, result = reset_password(username)
+        success, result = reset_password(username, password)
 
         if success:
             message = f"""
 ✅ Password Reset Successful
 
 Username: {username}
-Temporary Password: `{result}`
+New Password: `{result}`
 """
         else:
             message = f"❌ Error: {result}"
