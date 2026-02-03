@@ -3,6 +3,7 @@ from fastapi.responses import JSONResponse
 from app.slack_security import verify_slack_request
 from app.snowflake_client import onboard_user, reset_password
 import requests
+from urllib.parse import parse_qs
 
 app = FastAPI()
 
@@ -151,32 +152,35 @@ Temporary Password: `{result}`
 
 
 @app.post("/slack/command")
-async def slack_command(
-    request: Request,
-    background_tasks: BackgroundTasks,
-    user_id: str = Form(...),
-    command: str = Form(...),
-    text: str = Form(...),
-    response_url: str = Form(...)
-):
+async def slack_command(request: Request, background_tasks: BackgroundTasks):
 
-    # ---------- FIX 1: Get raw body correctly ----------
+    # ---------- Read RAW Body FIRST ----------
     raw_body = (await request.body()).decode("utf-8")
 
     # ---------- Verify Slack Signature ----------
     if not verify_slack_request(request.headers, raw_body):
         return JSONResponse({"text": "Invalid Slack signature"}, status_code=401)
 
+    # ---------- Parse Slack Form Data ----------
+    form_data = parse_qs(raw_body)
+
+    user_id = form_data.get("user_id", [""])[0]
+    text = form_data.get("text", [""])[0]
+    response_url = form_data.get("response_url", [""])[0]
+
     # ---------- Authorization ----------
     if user_id not in AUTHORIZED_USERS:
-        return {"text": "❌ You are not authorized to perform this action"}
+        return {
+            "response_type": "ephemeral",
+            "text": "❌ You are not authorized"
+        }
 
-    # ---------- ACK Slack Immediately (IMPORTANT) ----------
+    # ---------- Process in Background ----------
     background_tasks.add_task(process_command, text, response_url)
 
+    # ---------- ACK Slack Immediately ----------
     return {
         "response_type": "ephemeral",
         "text": "⏳ Processing your request..."
     }
-
 
