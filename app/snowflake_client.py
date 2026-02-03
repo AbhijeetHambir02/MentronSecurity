@@ -44,8 +44,6 @@ def reset_password(username, password):
     conn = get_connection()
     cursor = conn.cursor()
 
-    # temp_password = "Reset@" + username + "123"
-
     try:
         cursor.execute(
             f"ALTER USER {username} SET PASSWORD='{password}' MUST_CHANGE_PASSWORD=TRUE"
